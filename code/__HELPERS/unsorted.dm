@@ -199,10 +199,8 @@ Turf and target are separate in case you want to teleport some distance from a t
 	var/loop = 1
 	var/safety = 0
 
-	var/random = CONFIG_GET(flag/force_random_names) || (C ? is_banned_from(C.ckey, "Appearance") : FALSE)
-
 	while(loop && safety < 5)
-		if(!safety && !random && C?.prefs.custom_names[role])
+		if(!safety && C?.prefs.custom_names[role])
 			newname = C.prefs.custom_names[role]
 		else
 			switch(role)
@@ -327,6 +325,13 @@ Turf and target are separate in case you want to teleport some distance from a t
 	for(var/mob/M in mobs)
 		if(M.ckey == key)
 			return M
+
+/proc/get_client_by_ckey(key)
+	if(!key)
+		return
+	for(var/client/checked_client as anything in GLOB.clients)
+		if(checked_client.ckey == key)
+			return checked_client
 
 //Returns the atom sitting on the turf.
 //For example, using this on a disk, which is in a bag, on a mob, will return the mob because it's on the turf.

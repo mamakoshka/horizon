@@ -50,6 +50,11 @@
 		qdel(vlevel)
 	return ..()
 
+/datum/map_zone/proc/get_block()
+	. = list()
+	for(var/datum/virtual_level/vlevel as anything in virtual_levels)
+		. += vlevel.get_block()
+
 /// Clears all of what's inside the virtual levels managed by the mapzone.
 /datum/map_zone/proc/clear_reservation(immediate = FALSE)
 	for(var/datum/virtual_level/vlevel as anything in virtual_levels)
@@ -62,7 +67,7 @@
 
 /datum/map_zone/proc/set_planetary_atmos(datum/atmosphere/atmos_datum)
 	planetary_gas_string = atmos_datum.gas_string
-	SSair.register_planetary_atmos(atmos_datum)
+	SSair.register_planetary_atmos(planetary_gas_string)
 
 /datum/map_zone/proc/get_client_mobs()
 	return get_alive_client_mobs() + get_dead_client_mobs()
@@ -146,10 +151,37 @@
 		return TRUE
 	return FALSE
 
+/// Finds whether levels connect through multi-z and returns a distance to them. Will return 0 if they dont connect.
+/datum/virtual_level/proc/get_multi_z_connect_distance(datum/virtual_level/other_vlevel)
+	var/datum/virtual_level/current_iterated_level = src
+	var/distance = 0
+	var/found = FALSE
+	while(current_iterated_level)
+		current_iterated_level = current_iterated_level.up_linkage
+		distance++
+		if(current_iterated_level == other_vlevel)
+			found = TRUE
+			break
+	if(!found)
+		distance = 0
+		current_iterated_level = src
+		while(current_iterated_level)
+			current_iterated_level = current_iterated_level.down_linkage
+			distance++
+			if(current_iterated_level == other_vlevel)
+				found = TRUE
+				break
+	if(!found)
+		distance = 0
+	return distance
+
 /datum/virtual_level/proc/get_relative_coords(atom/A)
 	var/rel_x = A.x - low_x + 1
 	var/rel_y = A.y - low_y + 1
 	return list(rel_x, rel_y)
+
+/datum/virtual_level/proc/get_relative_point(rel_x, rel_y)
+	return locate(rel_x + low_x - 1, rel_y + low_y - 1, z_value)
 
 /datum/virtual_level/proc/reserve_margin(margin)
 	if(reserved_margin)

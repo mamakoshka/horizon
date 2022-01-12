@@ -73,23 +73,6 @@
 	maximum_emitters = 2
 	cooldown_between_emitters = 2 SECONDS
 
-/// Obnoxious tcomms ambience, but slightly more bearable now
-/datum/ambient_sound/crunchy_server
-	id = AMBIENCE_CRUNCHY_SERVER
-	sounds = list(
-		'sound/machines/tcomms/tcomms_mid1.ogg',
-		'sound/machines/tcomms/tcomms_mid2.ogg',
-		'sound/machines/tcomms/tcomms_mid3.ogg',
-		'sound/machines/tcomms/tcomms_mid4.ogg',
-		'sound/machines/tcomms/tcomms_mid5.ogg',
-		'sound/machines/tcomms/tcomms_mid6.ogg',
-		'sound/machines/tcomms/tcomms_mid7.ogg'
-		)
-	frequency_time = 2 SECONDS
-	sound_length = 2 SECONDS
-	volume = 2
-	range = 3
-
 /datum/ambient_sound/server //Nice, subtle hdd crunching
 	id = AMBIENCE_SERVER
 	sounds = list(
@@ -130,6 +113,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/holy
@@ -143,6 +127,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/danger
@@ -153,6 +138,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/ruins
@@ -169,6 +155,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/engi
@@ -183,6 +170,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/mining
@@ -200,6 +188,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 70 SECONDS
 	frequency_time_high = 220 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/medical
@@ -208,6 +197,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/spooky
@@ -220,6 +210,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/space
@@ -231,6 +222,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/maint
@@ -245,6 +237,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/away
@@ -262,6 +255,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/creepy
@@ -283,6 +277,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/reebe
@@ -295,6 +290,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 
@@ -311,6 +307,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/vaporwave
@@ -319,6 +316,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/ai_core
@@ -333,6 +331,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/abandoned_teleporter
@@ -341,6 +340,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/signal
@@ -349,6 +349,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/psych
@@ -357,6 +358,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/detective
@@ -365,6 +367,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/forgotten_ship
@@ -373,6 +376,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/forgotten_cargo
@@ -381,6 +385,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/forgotten_vault
@@ -389,6 +394,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/tcomm
@@ -406,6 +412,7 @@
 	sound_length = 30 SECONDS
 	frequency_time = 30 SECONDS
 	frequency_time_high = 90 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/windy
@@ -421,6 +428,7 @@
 	sound_length = 10 SECONDS
 	frequency_time = 10 SECONDS
 	frequency_time_high = 12 SECONDS
+	volume = 20
 	loops = FALSE
 
 /datum/ambient_sound/desert

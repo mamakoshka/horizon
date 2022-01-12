@@ -199,9 +199,9 @@
 				dropItemToGround(r_store, TRUE) //Again, makes sense for pockets to drop.
 			if(l_store)
 				dropItemToGround(l_store, TRUE)
-			if(wear_id)
+			if(wear_id && !(wear_id.item_flags & NO_STRAPS_NEEDED))
 				dropItemToGround(wear_id)
-			if(belt)
+			if(belt && !(belt.item_flags & NO_STRAPS_NEEDED))
 				dropItemToGround(belt)
 		w_uniform = null
 		update_suit_sensors()
@@ -220,7 +220,7 @@
 			update_tint()
 		if(G.vision_correction)
 			if(HAS_TRAIT(src, TRAIT_NEARSIGHT))
-				overlay_fullscreen("nearsighted", /atom/movable/screen/fullscreen/impaired, 1)
+				overlay_fullscreen("nearsighted", /atom/movable/screen/fullscreen/impaired, HUD_IMPAIRMENT_NEARSIGHT)
 		if(G.vision_flags || G.darkness_view || G.invis_override || G.invis_view || !isnull(G.lighting_alpha))
 			update_sight()
 		if(!QDELETED(src))

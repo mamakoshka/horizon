@@ -15,6 +15,7 @@
 
 	var/sound/ship_ambience_sound
 	var/ship_ambience_volume = 0
+	var/ship_ambience_volume_mult = 0
 
 	var/mob_x
 	var/mob_y
@@ -24,6 +25,9 @@
 
 	var/last_mob_positions_update = 0
 	var/needs_position_updates = FALSE
+
+	/// Volume multiplier we get from hearing jukebox stuff
+	var/jukebox_volume_multiplier = 1
 
 	var/list/current_area_ambient_noises
 
@@ -62,6 +66,11 @@
 	if(!client)
 		qdel(src)
 	var/mob/client_mob = client.mob
+
+	/// Update multiplier from jukeboxes
+	var/datum/jukebox_controller/jb_controller = client.jukebox_controller
+	var/jukebox_volume = jb_controller ? jb_controller.loudest_jukebox_volume : 0
+	jukebox_volume_multiplier = 1 - (min((jukebox_volume * JUKEBOX_AMBIENCE_CLAMP_PER_VOLUME), JUKEBOX_AMBIENCE_CLAMP_MAXIMUM) / 100)
 	// Dont try and play ambience for new players
 	if(isnewplayer(client_mob))
 		return
@@ -133,17 +142,19 @@
 /datum/ambience_controller/proc/handle_ship_ambience(mob/client_mob)
 	var/area/current_area = get_area(client_mob)
 	var/should_play_ship_ambience = (pref_ship_ambience && !current_area.outdoors)
-	if(ship_ambience_volume == should_play_ship_ambience)
-		return
 	if(should_play_ship_ambience)
-		ship_ambience_volume = min(ship_ambience_volume + 0.2, 1)
+		ship_ambience_volume_mult = min(ship_ambience_volume_mult + 0.2, 1)
 	else
-		ship_ambience_volume = max(ship_ambience_volume - 0.2, 0)
+		ship_ambience_volume_mult = max(ship_ambience_volume_mult - 0.2, 0)
+	var/new_ship_ambience_volume = SHIP_AMBIENCE_VOLUME * ship_ambience_volume_mult * jukebox_volume_multiplier
+	if(new_ship_ambience_volume == ship_ambience_volume)
+		return
+	ship_ambience_volume = new_ship_ambience_volume
 	if(ship_ambience_volume <= 0)
 		ship_ambience_sound.status = SOUND_UPDATE | SOUND_MUTE
 	else
 		ship_ambience_sound.status = SOUND_UPDATE
-	ship_ambience_sound.volume = ship_ambience_volume * SHIP_AMBIENCE_VOLUME
+		ship_ambience_sound.volume = ship_ambience_volume
 	SEND_SOUND(client, ship_ambience_sound)
 
 /// When our client pref gets updated.
@@ -319,7 +330,7 @@
 
 	var/datum/managed_ambience/managed_sound = new /datum/managed_ambience(emitter_index, sound_datum.id, sound, channel, play_turf, sound_datum.sound_length)
 	managed_sound.update_position_and_pressure_factor(mob_pressure_factor, mob_x, mob_y, sound_datum)
-	managed_sound.update_volume(sound_datum)
+	managed_sound.update_volume(sound_datum, jukebox_volume_multiplier)
 	managed_sounds += managed_sound
 
 	SEND_SOUND(client_mob, sound)
@@ -342,7 +353,7 @@
 		if(position_update)
 			managed.update_position_and_pressure_factor(mob_pressure_factor, mob_x, mob_y, sound_datum)
 
-		if(!managed.update_volume(sound_datum) && !position_update)
+		if(!managed.update_volume(sound_datum, jukebox_volume_multiplier) && !position_update)
 			continue
 
 		SEND_SOUND(client_mob, managed.sound)
@@ -471,7 +482,7 @@
 
 	calculated_pressure_factor = local_pressure_factor
 
-/datum/managed_ambience/proc/update_volume(datum/ambient_sound/sound_datum)
+/datum/managed_ambience/proc/update_volume(datum/ambient_sound/sound_datum, jukebox_volume_multiplier)
 	var/target_volume = (sound_datum.volume - position_volume_penalty) * calculated_pressure_factor
 	if(volume_multiplier != target_volume_multiplier)
 		if(volume_multiplier < target_volume_multiplier)
@@ -479,6 +490,7 @@
 		else
 			volume_multiplier = max(target_volume_multiplier, volume_multiplier - 0.15)
 	target_volume *= volume_multiplier
+	target_volume *= jukebox_volume_multiplier
 	if(target_volume == old_volume)
 		return FALSE
 	old_volume = target_volume

@@ -126,3 +126,9 @@
 
 /// How much less resources the RCD uses when reconstructing
 #define RCD_MEMORY_COST_BUFF 8
+
+/// How many sheets does it cost to make a fulltile window
+#define SHEETS_FOR_FULLTILE_WINDOW 2
+
+/// How much wood does it cost to construct a sauna oven.
+#define SAUNA_OVEN_WOOD_COST 20

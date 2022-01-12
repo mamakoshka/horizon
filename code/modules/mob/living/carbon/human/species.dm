@@ -28,19 +28,19 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	//Example list of offset_features:
 	/*
 	list(
-		OFFSET_UNIFORM = list(0,0), 
-		OFFSET_ID = list(0,0), 
-		OFFSET_GLOVES = list(0,0), 
-		OFFSET_GLASSES = list(0,0), 
-		OFFSET_EARS = list(0,0), 
-		OFFSET_SHOES = list(0,0), 
-		OFFSET_S_STORE = list(0,0), 
-		OFFSET_FACEMASK = list(0,0), 
-		OFFSET_HEAD = list(0,0), 
-		OFFSET_FACE = list(0,0), 
-		OFFSET_BELT = list(0,0), 
-		OFFSET_BACK = list(0,0), 
-		OFFSET_SUIT = list(0,0), 
+		OFFSET_UNIFORM = list(0,0),
+		OFFSET_ID = list(0,0),
+		OFFSET_GLOVES = list(0,0),
+		OFFSET_GLASSES = list(0,0),
+		OFFSET_EARS = list(0,0),
+		OFFSET_SHOES = list(0,0),
+		OFFSET_S_STORE = list(0,0),
+		OFFSET_FACEMASK = list(0,0),
+		OFFSET_HEAD = list(0,0),
+		OFFSET_FACE = list(0,0),
+		OFFSET_BELT = list(0,0),
+		OFFSET_BACK = list(0,0),
+		OFFSET_SUIT = list(0,0),
 		OFFSET_NECK = list(0,0),
 		OFFSET_INHANDS = list(0,0)
 		)
@@ -256,6 +256,23 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	var/list/learnable_languages = list(/datum/language/common)
 	/// Whether this species is forbidden from customizing its body size in prefs
 	var/body_size_restricted
+	/// List of keyed lists of MALE and FEMALE scream-sounds
+	var/list/scream_sounds = list(
+		MALE = list(
+			'sound/voice/scream_m1.ogg',
+			'sound/voice/scream_m2.ogg',
+		),
+		FEMALE = list(
+			'sound/voice/scream_f1.ogg',
+			'sound/voice/scream_f2.ogg',
+		),
+		NEUTER = list(
+			'sound/voice/scream_m1.ogg',
+			'sound/voice/scream_m2.ogg',
+			'sound/voice/scream_f1.ogg',
+			'sound/voice/scream_f2.ogg',
+		)
+	)
 
 ///////////
 // PROCS //
@@ -263,7 +280,6 @@ GLOBAL_LIST_EMPTY(customizable_races)
 
 
 /datum/species/New()
-
 	if(!limbs_id) //if we havent set a limbs id to use, just use our own id
 		limbs_id = id
 	wings_icons = string_list(wings_icons)
@@ -1134,7 +1150,7 @@ GLOBAL_LIST_EMPTY(customizable_races)
 			excused = TRUE
 		if(!excused)
 			return FALSE
-		
+
 	var/perceived_bodytype = get_bodytype(slot, I)
 
 	if(!excused && !(I.allowed_bodytypes & perceived_bodytype))
@@ -1166,12 +1182,13 @@ GLOBAL_LIST_EMPTY(customizable_races)
 				return FALSE
 			return equip_delay_self_check(I, H, bypass_equip_delay_self)
 		if(ITEM_SLOT_BELT)
-			var/obj/item/bodypart/O = H.get_bodypart(BODY_ZONE_CHEST)
-
-			if(!H.w_uniform && !nojumpsuit && (!O || O.status != BODYPART_ROBOTIC))
-				if(!disable_warning)
-					to_chat(H, SPAN_WARNING("You need a jumpsuit before you can attach this [I.name]!"))
-				return FALSE
+			if(!(I.item_flags & NO_STRAPS_NEEDED))
+				var/obj/item/bodypart/O = H.get_bodypart(BODY_ZONE_CHEST)
+	
+				if(!H.w_uniform && !nojumpsuit && (!O || O.status != BODYPART_ROBOTIC))
+					if(!disable_warning)
+						to_chat(H, SPAN_WARNING("You need a jumpsuit before you can attach this [I.name]!"))
+					return FALSE
 			return equip_delay_self_check(I, H, bypass_equip_delay_self)
 		if(ITEM_SLOT_EYES)
 			if(!H.get_bodypart(BODY_ZONE_HEAD))
@@ -1191,12 +1208,13 @@ GLOBAL_LIST_EMPTY(customizable_races)
 		if(ITEM_SLOT_ICLOTHING)
 			return equip_delay_self_check(I, H, bypass_equip_delay_self)
 		if(ITEM_SLOT_ID)
-			var/obj/item/bodypart/O = H.get_bodypart(BODY_ZONE_CHEST)
-			if(!H.w_uniform && !nojumpsuit && (!O || O.status != BODYPART_ROBOTIC))
-				if(!disable_warning)
-					to_chat(H, SPAN_WARNING("You need a jumpsuit before you can attach this [I.name]!"))
-				return FALSE
-			return equip_delay_self_check(I, H, bypass_equip_delay_self)
+			if(!(I.item_flags & NO_STRAPS_NEEDED))
+				var/obj/item/bodypart/O = H.get_bodypart(BODY_ZONE_CHEST)
+				if(!H.w_uniform && !nojumpsuit && (!O || O.status != BODYPART_ROBOTIC))
+					if(!disable_warning)
+						to_chat(H, SPAN_WARNING("You need a jumpsuit before you can attach this [I.name]!"))
+					return FALSE
+				return equip_delay_self_check(I, H, bypass_equip_delay_self)
 		if(ITEM_SLOT_LPOCKET)
 			if(HAS_TRAIT(I, TRAIT_NODROP)) //Pockets aren't visible, so you can't move TRAIT_NODROP items into them.
 				return FALSE
@@ -2441,7 +2459,7 @@ GLOBAL_LIST_EMPTY(customizable_races)
 	if(!item_slot)
 		return bodytype
 	var/perceived_bodytype = bodytype
-	if((item_slot == ITEM_SLOT_FEET || item_slot == ITEM_SLOT_OCLOTHING || item_slot == ITEM_SLOT_ICLOTHING) && (DIGITIGRADE in species_traits))
+	if((item_slot == ITEM_SLOT_BELT || item_slot == ITEM_SLOT_FEET || item_slot == ITEM_SLOT_OCLOTHING || item_slot == ITEM_SLOT_ICLOTHING) && (DIGITIGRADE in species_traits))
 		perceived_bodytype = BODYTYPE_DIGITIGRADE
 	if((item_slot == ITEM_SLOT_HEAD || item_slot == ITEM_SLOT_MASK) && mutant_bodyparts["snout"])
 		var/datum/sprite_accessory/snouts/snout_accessory = GLOB.sprite_accessories["snout"][mutant_bodyparts["snout"][MUTANT_INDEX_NAME]]

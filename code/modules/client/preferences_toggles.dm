@@ -270,6 +270,21 @@ TOGGLE_CHECKBOX(/datum/verbs/menu/settings/sound, toggle_announcement_sound)()
 /datum/verbs/menu/settings/sound/toggle_announcement_sound/Get_checked(client/C)
 	return C.prefs.toggles & SOUND_ANNOUNCEMENTS
 
+TOGGLE_CHECKBOX(/datum/verbs/menu/settings/sound, toggle_jukebox)()
+	set name = "Hear/Silence Jukebox"
+	set category = "Preferences"
+	set desc = "Hear Jukebox"
+	usr.client.prefs.hear_jukebox = !usr.client.prefs.hear_jukebox
+	usr.client.prefs.save_preferences()
+	if(usr.client.prefs.hear_jukebox)
+		to_chat(usr, "<span class='infoplain'>You will now hear jukeboxes.</span>")
+	else
+		to_chat(usr, "<span class='infoplain'>You will no longer hear jukeboxes.</span>")
+	usr.client.update_jukebox_pref()
+	SSblackbox.record_feedback("nested tally", "preferences_verb", 1, list("Toggle Jukebox", "[usr.client.prefs.hear_jukebox ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, I bet you read this comment expecting to see the same thing :^)
+/datum/verbs/menu/settings/sound/toggle_jukebox/Get_checked(client/C)
+	return C.prefs.hear_jukebox
+
 
 /datum/verbs/menu/settings/sound/verb/stop_client_sounds()
 	set name = "Stop Sounds"
@@ -428,6 +443,17 @@ GLOBAL_LIST_INIT(ghost_orbits, list(GHOST_ORBIT_CIRCLE,GHOST_ORBIT_TRIANGLE,GHOS
 	prefs.save_preferences()
 	to_chat(usr, "<span class='infoplain'>You will [(prefs.toggles & SOUND_ADMINHELP) ? "now" : "no longer"] hear a sound when adminhelps arrive.</span>")
 	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Adminhelp Sound", "[prefs.toggles & SOUND_ADMINHELP ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/togglehearstoryteller()
+	set name = "Hear/Silence Storyteller"
+	set category = "Preferences.Admin"
+	set desc = "Toggle hearing messages about storyteller actions."
+	if(!holder)
+		return
+	prefs.hear_storyteller = !prefs.hear_storyteller
+	prefs.save_preferences()
+	to_chat(usr, "<span class='infoplain'>You will [prefs.hear_storyteller ? "now" : "no longer"] hear messages about storyteller actions.</span>")
+	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Storyteller Hear", "[prefs.hear_storyteller ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/toggleannouncelogin()
 	set name = "Do/Don't Announce Login"

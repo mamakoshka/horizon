@@ -251,12 +251,6 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 	prefs.last_id = computer_id //these are gonna be used for banning
 	fps = (prefs.clientfps < 0) ? RECOMMENDED_FPS : prefs.clientfps
 
-	if(fexists(roundend_report_file()))
-		add_verb(src, /client/proc/show_previous_roundend_report)
-
-	if(fexists("data/server_last_roundend_report.html"))
-		add_verb(src, /client/proc/show_servers_last_roundend_report)
-
 	var/full_version = "[byond_version].[byond_build ? byond_build : "xxx"]"
 	log_access("Login: [key_name(src)] from [address ? address : "localhost"]-[computer_id] || BYOND v[full_version]")
 
@@ -431,6 +425,7 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		to_chat(src, SPAN_WARNING("Unable to access asset cache browser, if you are using a custom skin file, please allow DS to download the updated version, if you are not, then make a bug report. This is not a critical issue but can cause issues with resource downloading, as it is impossible to know when extra resources arrived to you."))
 
 	ambience_controller = new(src)
+	update_jukebox_pref()
 
 	//This is down here because of the browse() calls in tooltip/New()
 	if(!tooltips)
@@ -497,6 +492,8 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		movingmob = null
 	active_mousedown_item = null
 	QDEL_NULL(ambience_controller)
+	if(jukebox_controller)
+		QDEL_NULL(jukebox_controller)
 	QDEL_NULL(view_size)
 	QDEL_NULL(void)
 	QDEL_NULL(tooltips)
@@ -1123,6 +1120,15 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 /client/proc/update_ambience_pref()
 	ambience_controller.client_pref_update()
+
+/client/proc/update_jukebox_pref()
+	var/hear_jukebox = prefs.hear_jukebox
+	if(!hear_jukebox)
+		if(jukebox_controller)
+			QDEL_NULL(jukebox_controller)
+	else
+		if(!jukebox_controller)
+			jukebox_controller = new(src)
 
 /// Checks if this client has met the days requirement passed in, or if
 /// they are exempt from it.
