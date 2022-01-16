@@ -106,7 +106,7 @@
 			for(var/datum/jukebox_track/song in songs)
 				available["[song.song_artist] - [song.song_title]"] = song
 			sortList(available)
-			var/song_input = input(user, "Select track:") as anything in available
+			var/song_input = tgui_input_list(user, "Select track:", "Pawasonic Double Deck Blaster", available, null, played_track)
 			if(!song_input)
 				return
 			if(played_track)
