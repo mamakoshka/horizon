@@ -118,7 +118,7 @@ export const BoomboxListpicker = (props, context) => {
               selected={selectedButton === button}
               onClick={() => {
                 setSelectedButton(button);
-                act("select_track", { track: selectedButton.ref });
+                act("select_track", { track: button.ref });
               }}>
               {button.artist} - {button.title}
             </Button>
