@@ -129,7 +129,7 @@
 	else
 		sound_to_update.status &= ~SOUND_MUTE
 
-	if(!played_track.?boombox.paused)
+	if(!played_track?.boombox.paused)
 		sound_to_update |= SOUND_PAUSED
 	else
 		sound_to_update &= ~SOUND_PAUSED
