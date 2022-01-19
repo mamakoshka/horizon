@@ -69,6 +69,7 @@
 
 /// called by the song ending from the jukebox subsystem
 /obj/item/boombox/proc/song_ended()
+	last_played_track = playing_track.track
 	playing_track = null
 	update_appearance()
 
@@ -120,7 +121,7 @@
 	switch(action)
 		if("toggle_play")
 			if(playing_track)
-				toggle_pause()
+				pause_song()
 			else
 				play_song()
 			return TRUE

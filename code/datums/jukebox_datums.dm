@@ -129,11 +129,6 @@
 	else
 		sound_to_update.status &= ~SOUND_MUTE
 
-	if(!played_track?.boombox.paused)
-		sound_to_update |= SOUND_PAUSED
-	else
-		sound_to_update &= ~SOUND_PAUSED
-
 	/// At close range we dont set a position of the sound.
 	if(distance <= JUKEBOX_NO_POSITIONAL_RANGE)
 		sound_to_update.x = 0
