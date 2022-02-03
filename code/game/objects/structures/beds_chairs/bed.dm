@@ -229,3 +229,14 @@
 /obj/structure/bed/maint/Initialize()
 	. = ..()
 	AddElement(/datum/element/swabable, CELL_LINE_TABLE_MOLD, CELL_VIRUS_TABLE_GENERIC, rand(2,4), 25)
+
+/obj/structure/bed/double
+	name = "double bed"
+	desc = "A luxurious double bed, for those too important for small dreams."
+	icon_state = "bed_double"
+	buildstackamount = 4
+	max_buckled_mobs = 2
+
+/obj/structure/bed/double/post_buckle_mob(mob/living/target)
+	if(buckled_mobs.len >= 2 && buckled_mobs[2] == target) //Push the second buckled mob a bit higher from the normal lying position
+		target.pixel_y = target.base_pixel_y + 6

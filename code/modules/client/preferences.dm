@@ -247,6 +247,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)
 		return
+	if(Master.current_runlevel == RUNLEVEL_INIT)
+		return
 	if(slot_randomized)
 		load_character(default_slot) // Reloads the character slot. Prevents random features from overwriting the slot if saved.
 		slot_randomized = FALSE
@@ -1512,6 +1514,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		all_quirks = list()
 
 /datum/preferences/Topic(href, href_list, hsrc) //yeah, gotta do this I guess..
+	if(Master.current_runlevel == RUNLEVEL_INIT)
+		return
 	. = ..()
 	if(href_list["close"])
 		var/client/C = usr.client
@@ -2694,8 +2698,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("ambientocclusion")
 					ambientocclusion = !ambientocclusion
 					if(parent && parent.screen && parent.screen.len)
-						var/atom/movable/screen/plane_master/game_world/PM = locate(/atom/movable/screen/plane_master/game_world) in parent.screen
-						PM.backdrop(parent.mob)
+						var/atom/movable/screen/plane_master/game_world/GPM = locate(/atom/movable/screen/plane_master/game_world) in parent.screen
+						GPM.backdrop(parent.mob)
+
+						var/atom/movable/screen/plane_master/runechat/RPM = locate(/atom/movable/screen/plane_master/runechat) in parent.screen
+						RPM.backdrop(parent.mob)
 
 				if("auto_fit_viewport")
 					auto_fit_viewport = !auto_fit_viewport
