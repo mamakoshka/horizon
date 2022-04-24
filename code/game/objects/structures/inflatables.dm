@@ -4,7 +4,7 @@
 /obj/item/inflatable
 	name = "inflatable wall"
 	desc = "A neatly folded package of a rubber-like material, with a re-usable pulltab sticking out from it."
-	icon = 'icons/obj/structures/inflatables.dmi'
+	icon = 'icons/obj/items/inflatables.dmi'
 	icon_state = "folded"
 	w_class = WEIGHT_CLASS_SMALL
 	var/deploy_structure = /obj/structure/inflatable
