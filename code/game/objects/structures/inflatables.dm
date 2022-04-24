@@ -41,7 +41,7 @@
 	return BRUTELOSS
 
 /obj/item/inflatable/proc/inflate(mob/user)
-	var/obj/structure/inflatable/new_inflatable = new deploy_structure(user.loc)
+	var/obj/structure/inflatable/new_inflatable = new deploy_structure(user.loc, deployer_item=src)
 	transfer_fingerprints_to(new_inflatable)
 	new_inflatable.add_fingerprint(user)
 	qdel(src)
