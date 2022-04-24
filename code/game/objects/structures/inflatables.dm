@@ -66,8 +66,20 @@
 	transform = self_matrix
 
 /obj/structure/inflatable/attackby(obj/item/I, mob/living/user, params)
+	// We're already deflating, no real point doing anything special
 	if (deflating)
 		return
+
+	if (isprojectile(I) || I.sharpness > NONE)
+		// A projectile or sharp tool is hitting us, and we're structurally weakened - pop
+		if(get_integrity() <= (max_integrity * 0.7))
+			src.deflate(violent=TRUE)
+			return
+
+	if (src.get_integrity() <= (max_integrity * 0.25))
+		src.deflate()
+
+	return ..()
 
 /// Causes our structure to deflate, violent will make it blow into pieces
 /obj/structure/inflatable/proc/deflate(violent = FALSE)
