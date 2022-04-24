@@ -58,9 +58,15 @@
 	max_integrity = 50
 	CanAtmosPass = ATMOS_PASS_DENSITY
 	var/deflating = FALSE
+	var/deployer_item = /obj/item/inflatable
 
-/obj/structure/inflatable/Initialize()
+/obj/structure/inflatable/Initialize(obj/item/inflatable/deployer_item)
 	. = ..()
+	// We probably want to make this retract into its proper type when deflating, done here
+	if(deployer_item)
+		src.deployer_item = deployer_item.type
+
+	// And as the sprite is larger than 32x32, we need to translate it a little bit
 	var/matrix/self_matrix = new
 	self_matrix.Translate(-4, -4)
 	transform = self_matrix
@@ -96,9 +102,8 @@
 	animate(src, SLOW_DEFLATE_TIME, transform = matrix)
 	addtimer(CALLBACK(src, .proc/post_deflate), SLOW_DEFLATE_TIME)
 
-
 /obj/structure/inflatable/proc/post_deflate()
-	var/obj/item/inflatable/inflatable_item = new /obj/item/inflatable
+	var/obj/item/inflatable/inflatable_item = new deployer_item(src.loc)
 	transfer_fingerprints_to(inflatable_item)
 	qdel(src)
 
