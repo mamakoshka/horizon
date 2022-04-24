@@ -24,14 +24,27 @@
 
 	if(do_after(user, 0.70 SECONDS, src))
 		// We put it on the floor, and quickly pulled on the tab
-		var/obj/structure/inflatable/new_inflatable = new deploy_structure(user.loc)
-		transfer_fingerprints_to(new_inflatable)
-		new_inflatable.add_fingerprint(user)
-		qdel(src)
+		src.inflate(user)
 	else
 		// We just drop it to the ground cause we somehow couldn't pull on the tab quick enough.
 		to_chat(user, SPAN_WARNING("You lost your grip on the tab!"))
 		user.dropItemToGround(src)
+
+/obj/item/inflatable/suicide_act(mob/user)
+	user.visible_message(
+		SPAN_SUICIDE("[user] stuffs the [src] into one of their cavities and is pulling on the [src]'s pulltab! It looks like [user.p_theyre()] trying to commit suicide by becoming a balloon animal!")
+	)
+	if(prob(15) && iscarbon(user))
+		var/mob/living/carbon/carbon_user = user
+		carbon_user.inflate_gib()
+	src.inflate(user)
+	return BRUTELOSS
+
+/obj/item/inflatable/proc/inflate(mob/user)
+	var/obj/structure/inflatable/new_inflatable = new deploy_structure(user.loc)
+	transfer_fingerprints_to(new_inflatable)
+	new_inflatable.add_fingerprint(user)
+	qdel(src)
 
 /// A temporary structure that can be deployed by using an item
 /// Will deflate after a while, or after being pierced.
