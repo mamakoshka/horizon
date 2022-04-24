@@ -11,7 +11,7 @@
 
 /obj/item/Initialize()
 	. = ..()
-	src.desc = "A neatly folded package of a rubber-like material, with a re-usable pulltab sticking out from it.\nThere is a warning in big bold letters below the instructions, \"[SPAN_WARNING("WARNING: RETIRE IMMEDIATELY AFTER PULLING TAB. DO NOT HOLD. STAND BACK UNTIL INFLATED.")]\""
+	src.desc = "[src.desc]\nThere is a warning in big bold letters below the instructions, \"[SPAN_WARNING("WARNING: RETIRE IMMEDIATELY AFTER PULLING TAB. DO NOT HOLD. STAND BACK UNTIL INFLATED.")]\""
 
 /obj/item/inflatable/attack_self(mob/user, modifiers)
 	if(!deploy_structure) return
