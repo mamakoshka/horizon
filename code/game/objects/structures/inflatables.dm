@@ -43,6 +43,7 @@
 	density = TRUE
 	anchored = TRUE
 	max_integrity = 50
+	CanAtmosPass = ATMOS_PASS_DENSITY
 	var/deflating = FALSE
 
 /obj/structure/inflatable/Initialize()
