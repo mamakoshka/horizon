@@ -57,7 +57,8 @@
 	if(prob(SUICIDE_INFLATION_PROBABILITY) && iscarbon(user))
 		var/mob/living/carbon/carbon_user = user
 		carbon_user.inflate_gib()
-	src.inflate(user)
+
+	src.inflate(user, is_suiciding = TRUE)
 	return BRUTELOSS
 
 /obj/item/inflatable/proc/pre_inflate(mob/user)
@@ -70,8 +71,15 @@
 	playsound(loc, 'sound/items/zip.ogg', vol=70, vary=TRUE)
 	return TRUE
 
-/obj/item/inflatable/proc/inflate(mob/user)
-	var/obj/structure/inflatable/new_inflatable = new deploy_structure(src.loc)
+/obj/item/inflatable/proc/inflate(mob/user, is_suiciding = FALSE)
+	var/location = src.loc
+
+	if(user.get_held_index_of_item(src))
+		location = user.loc
+		if(!is_suiciding)
+			user.throw_at(get_edge_target_turf(get_turf(src), pick(GLOB.alldirs)), 1, 2)
+
+	var/obj/structure/inflatable/new_inflatable = new deploy_structure(location)
 	new_inflatable.deployer_item = src.type
 	transfer_fingerprints_to(new_inflatable)
 	new_inflatable.add_fingerprint(user)
