@@ -46,7 +46,7 @@
 		addtimer(CALLBACK(src, .proc/inflate, user), DEPLOY_DELAY)
 	else
 		// We just drop it to the ground cause we somehow couldn't pull on the tab quick enough.
-		to_chat(user, SPAN_WARNING("You lost your grip on the tab!"))
+		to_chat(user, SPAN_NOTICE("You lost your grip on the tab!"))
 		user.dropItemToGround(src)
 
 /obj/item/inflatable/suicide_act(mob/user)
