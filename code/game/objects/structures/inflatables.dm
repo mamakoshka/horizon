@@ -1,7 +1,22 @@
-/// Time it takes for the inflatable to slowly deflate
+#define FAST_INFLATE_TIME 0.3 SECONDS
+/// Time it takes for the inflatable to inflate.
 #define FAST_DEFLATE_TIME 1 SECONDS
+/// Time it takes for the inflatable to quickly deflate, e.g. by manual usage
 #define SLOW_DEFLATE_TIME 5 SECONDS
-#define PRE_INFLATE_DELAY 2 SECONDS
+/// Time it takes for the inflatable to slowly deflate, e.g. by puncturing
+#define DEPLOY_DELAY 2 SECONDS
+/// The delay before the inflatable deploys it's structural variant
+#define WALL_DEFLATED_SCALE_X 0.55
+/// Width scale of the wall structure, to match the item
+#define WALL_DEFLATED_SCALE_Y 0.4
+/// Height scale of the wall structure, to match the item
+#define WALL_SPRITE_MARGIN -4
+/// How big the margin on all sides of the sprites are, solve for (-)MARGIN/2
+/// Example: If the sprite is 40x40, the margin is 8 pixels in both directions (4 on each side), negate it, presto.
+// This is primarily a micro-optimization, to avoid having to calculate it for each instance.
+// Does it matter? I don't know.
+#define SUICIDE_INFLATION_PROBABILITY 100
+/// How likely it is to become a balloon animal if suiciding
 
 // Custom broken plastic decal
 /obj/effect/decal/cleanable/plastic/inflatables
@@ -28,7 +43,7 @@
 
 	if(do_after(user, 0.50 SECONDS, src))
 		// We put it on the floor, and quickly pulled on the tab
-		addtimer(CALLBACK(src, .proc/inflate, user), PRE_INFLATE_DELAY)
+		addtimer(CALLBACK(src, .proc/inflate, user), DEPLOY_DELAY)
 	else
 		// We just drop it to the ground cause we somehow couldn't pull on the tab quick enough.
 		to_chat(user, SPAN_WARNING("You lost your grip on the tab!"))
@@ -38,7 +53,8 @@
 	user.visible_message(
 		SPAN_SUICIDE("[user] stuffs the [src] into one of their cavities and is pulling on the [src]'s pulltab! It looks like [user.p_theyre()] trying to commit suicide by becoming a balloon animal!")
 	)
-	if(prob(15) && iscarbon(user))
+
+	if(prob(SUICIDE_INFLATION_PROBABILITY) && iscarbon(user))
 		var/mob/living/carbon/carbon_user = user
 		carbon_user.inflate_gib()
 	src.inflate(user)
@@ -165,7 +181,7 @@
 
 	var/deflate_time = by_user ? FAST_DEFLATE_TIME : SLOW_DEFLATE_TIME
 	var/matrix/matrix = new
-	matrix.Scale(0.5, 0.3)
+	matrix.Scale(WALL_DEFLATED_SCALE_X, WALL_DEFLATED_SCALE_Y)
 
 	deflating = TRUE
 	playsound(loc, 'sound/effects/smoke.ogg', vol=70, vary=TRUE)
@@ -183,4 +199,8 @@
 
 #undef FAST_DEFLATE_TIME
 #undef SLOW_DEFLATE_TIME
-#undef PRE_INFLATE_DELAY
+#undef DEPLOY_DELAY
+#undef WALL_DEFLATED_SCALE_X
+#undef WALL_DEFLATED_SCALE_Y
+#undef WALL_SPRITE_MARGIN
+#undef SUICIDE_INFLATION_PROBABILITY
