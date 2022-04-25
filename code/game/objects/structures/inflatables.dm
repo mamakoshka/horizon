@@ -24,7 +24,7 @@
 	if(!pre_inflate(user))
 		return
 
-	to_chat(user, SPAN_NOTICE("You lay \the [src] onto the floor and pull on its expand tab."))
+	to_chat(user, SPAN_NOTICE("You pull on \the [src]'s expand tab."))
 
 	if(do_after(user, 0.50 SECONDS, src))
 		// We put it on the floor, and quickly pulled on the tab
