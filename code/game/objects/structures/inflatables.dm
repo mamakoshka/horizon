@@ -105,9 +105,14 @@
 	. = ..()
 	air_update_turf(TRUE, TRUE)
 	// As the sprite is larger than 32x32, we need to translate it a little bit
-	var/matrix/self_matrix = new
-	self_matrix.Translate(-4, -4)
-	transform = self_matrix
+	var/matrix/pre_matrix = new
+	pre_matrix.Translate(WALL_SPRITE_MARGIN)
+	pre_matrix.Scale(WALL_DEFLATED_SCALE_X, WALL_DEFLATED_SCALE_Y)
+	transform = pre_matrix
+	var/matrix/post_matrix = new
+	post_matrix.Translate(WALL_SPRITE_MARGIN)
+	playsound(loc, 'sound/effects/smoke.ogg', vol=70, vary=TRUE, frequency=1.5)
+	animate(src, FAST_INFLATE_TIME, transform = post_matrix)
 
 /obj/structure/inflatable/deconstruct(disassembled)
 	SEND_SIGNAL(src, COMSIG_OBJ_DECONSTRUCT, disassembled)
@@ -181,7 +186,7 @@
 		return
 
 	if(violent)
-		playsound(loc, 'sound/effects/snap.ogg', vol = 85, vary = TRUE, frequency = 32000, falloff_distance = 2)
+		playsound(loc, 'sound/effects/snap.ogg', vol = 95, vary = TRUE, frequency = 0.6, falloff_distance = 2)
 		new /obj/effect/decal/cleanable/plastic/inflatables(get_turf(src))
 		qdel(src)
 		air_update_turf(TRUE, TRUE)
