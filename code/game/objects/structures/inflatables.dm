@@ -51,7 +51,7 @@
 
 /obj/item/inflatable/suicide_act(mob/user)
 	user.visible_message(
-		SPAN_SUICIDE("[user] stuffs the [src] into one of their cavities and is pulling on the [src]'s pulltab! It looks like [user.p_theyre()] trying to commit suicide by becoming a balloon animal!")
+		SPAN_SUICIDE("[user] painfully stuffs \the [src] into one of [user.p_their()] cavities and is pulling on the tab! It looks like [user.p_theyre()] trying to commit suicide by becoming a balloon animal!")
 	)
 
 	if(prob(SUICIDE_INFLATION_PROBABILITY) && iscarbon(user))
