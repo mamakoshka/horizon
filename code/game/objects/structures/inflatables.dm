@@ -9,7 +9,7 @@
 	w_class = WEIGHT_CLASS_SMALL
 	var/deploy_structure = /obj/structure/inflatable
 
-/obj/item/Initialize()
+/obj/item/inflatable/Initialize()
 	. = ..()
 	src.desc = "[src.desc]\nThere is a warning in big bold letters below the instructions, \"[SPAN_WARNING("WARNING: RETIRE IMMEDIATELY AFTER PULLING TAB. DO NOT HOLD. STAND BACK UNTIL INFLATED.")]\""
 
