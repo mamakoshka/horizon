@@ -1,5 +1,12 @@
 /// Time it takes for the inflatable to slowly deflate
-#define SLOW_DEFLATE_TIME 2.6 SECONDS
+#define FAST_DEFLATE_TIME 1 SECONDS
+#define SLOW_DEFLATE_TIME 5 SECONDS
+#define PRE_INFLATE_DELAY 2 SECONDS
+
+// Custom broken plastic decal
+/obj/effect/decal/cleanable/plastic/inflatables
+	name = "rubber shreds"
+	color = "#e9d285"
 
 /obj/item/inflatable
 	name = "inflatable wall"
@@ -14,17 +21,14 @@
 	src.desc = "[src.desc]\nThere is a warning in big bold letters below the instructions, \"[SPAN_WARNING("WARNING: RETIRE IMMEDIATELY AFTER PULLING TAB. DO NOT HOLD. STAND BACK UNTIL INFLATED.")]\""
 
 /obj/item/inflatable/attack_self(mob/user, modifiers)
-	if(!deploy_structure) return
-	if(locate(/obj/structure/inflatable) in user.loc)
-		to_chat(user, SPAN_WARNING("There is already an inflatable here!"))
+	if(!pre_inflate(user))
 		return
 
-	playsound(loc, 'sound/items/zip.ogg', 75, TRUE)
 	to_chat(user, SPAN_NOTICE("You lay \the [src] onto the floor and pull on its expand tab."))
 
-	if(do_after(user, 0.70 SECONDS, src))
+	if(do_after(user, 0.50 SECONDS, src))
 		// We put it on the floor, and quickly pulled on the tab
-		src.inflate(user)
+		addtimer(CALLBACK(src, .proc/inflate, user), PRE_INFLATE_DELAY)
 	else
 		// We just drop it to the ground cause we somehow couldn't pull on the tab quick enough.
 		to_chat(user, SPAN_WARNING("You lost your grip on the tab!"))
@@ -40,8 +44,19 @@
 	src.inflate(user)
 	return BRUTELOSS
 
+/obj/item/inflatable/proc/pre_inflate(mob/user)
+	if(!deploy_structure)
+		return
+	if(locate(/obj/structure/inflatable) in user.loc)
+		to_chat(user, SPAN_WARNING("There is already an inflatable here!"))
+		return
+
+	playsound(loc, 'sound/items/zip.ogg', vol=70, vary=TRUE)
+	return TRUE
+
 /obj/item/inflatable/proc/inflate(mob/user)
-	var/obj/structure/inflatable/new_inflatable = new deploy_structure(user.loc, deployer_item=src)
+	var/obj/structure/inflatable/new_inflatable = new deploy_structure(src.loc)
+	new_inflatable.deployer_item = src.type
 	transfer_fingerprints_to(new_inflatable)
 	new_inflatable.add_fingerprint(user)
 	qdel(src)
@@ -49,7 +64,7 @@
 /// A temporary structure that can be deployed by using an item
 /// Will deflate after a while, or after being pierced.
 /obj/structure/inflatable
-	name = "inflatable"
+	name = "inflatable wall"
 	desc = "An inflated membrane. Do not puncture."
 	icon = 'icons/obj/structures/inflatables.dmi'
 	icon_state = "wall"
@@ -57,59 +72,115 @@
 	anchored = TRUE
 	max_integrity = 50
 	CanAtmosPass = ATMOS_PASS_DENSITY
+	// These are made for SPAAACE
+	resistance_flags = FLAMMABLE | FREEZE_PROOF
 	var/deflating = FALSE
 	var/deployer_item = /obj/item/inflatable
 
-/obj/structure/inflatable/Initialize(obj/item/inflatable/deployer_item)
+/obj/structure/inflatable/Initialize()
 	. = ..()
-	// We probably want to make this retract into its proper type when deflating, done here
-	if(deployer_item)
-		src.deployer_item = deployer_item.type
-
-	// And as the sprite is larger than 32x32, we need to translate it a little bit
+	air_update_turf(TRUE, TRUE)
+	// As the sprite is larger than 32x32, we need to translate it a little bit
 	var/matrix/self_matrix = new
 	self_matrix.Translate(-4, -4)
 	transform = self_matrix
 
-/obj/structure/inflatable/attackby(obj/item/I, mob/living/user, params)
-	// We're already deflating, no real point doing anything special
-	if (deflating)
+/obj/structure/inflatable/deconstruct(disassembled)
+	SEND_SIGNAL(src, COMSIG_OBJ_DECONSTRUCT, disassembled)
+	deflate(by_user = disassembled)
+
+/obj/structure/inflatable/attack_hand(mob/living/user, list/modifiers)
+	if(deflating)
+		return ..()
+
+	. = ..()
+
+	deconstruct(TRUE)
+
+/obj/structure/inflatable/hitby(atom/movable/thrown_thing, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
+	if(deflating)
+		return ..()
+
+	if(thrown_thing.throwforce >= 20)
+		deflate(violent = TRUE)
 		return
 
-	if (isprojectile(I) || I.sharpness > NONE)
-		// A projectile or sharp tool is hitting us, and we're structurally weakened - pop
-		if(get_integrity() <= (max_integrity * 0.7))
-			src.deflate(violent=TRUE)
+	if(isitem(thrown_thing))
+		var/obj/item/thrown_item = thrown_thing
+		if(thrown_item.sharpness > 0 && thrown_item.force >= 8)
+			deflate(violent = TRUE)
 			return
 
-	if (src.get_integrity() <= (max_integrity * 0.25))
-		src.deflate()
+	. = ..()
+
+/obj/structure/inflatable/bullet_act(obj/projectile/projectile)
+	if(deflating)
+		return ..()
+
+	. = ..()
+	// Make sure the projectile is of damage_type BRUTE or BURN
+	// AND that it's damage is above the inflatable's current integrity
+	if((projectile.damage_type == BRUTE || projectile.damage_type == BURN) && ((src.get_integrity() - projectile.damage) <= 0))
+		deflate(violent = TRUE)
+		return
+
+/obj/structure/inflatable/attackby(obj/item/item, mob/living/user, params)
+	// We're already deflating, no real point doing anything special
+	if(deflating)
+		return ..()
+
+	// Yes we are shadowing the original integrity and caching it here
+	var/integrity = src.get_integrity()
+	var/violently_deflate = FALSE
+
+	// Check if we should pop it immediately
+	if(integrity <= (max_integrity * 0.8))
+		// We have a relatively sharp item or something quite deadly
+		if(item.sharpness > NONE && item.force >= 8)
+			violently_deflate = TRUE
+
+		// We have something quite deadly and the inflatable might get popped by it
+		if(item.force >= 20 && integrity - item.force <= 0)
+			violently_deflate = TRUE
+
+	if(violently_deflate)
+		src.deflate(violent = TRUE)
+		return
 
 	return ..()
 
-/// Causes our structure to deflate, violent will make it blow into pieces
-/obj/structure/inflatable/proc/deflate(violent = FALSE)
-	if (deflating)
+/// Causes our structure to deflate
+/// by_user - Is a user manually deflating it in a controlled manner?
+/// violent - Is the deflating caused by a violent action?
+/obj/structure/inflatable/proc/deflate(by_user = FALSE, violent = FALSE)
+	if(QDELETED(src) || deflating)
 		return
-	if (violent)
-		playsound(loc, 'sound/effects/snap.ogg', 75, TRUE, frequency = 32000, falloff_distance = 2)
+
+	if(violent)
+		playsound(loc, 'sound/effects/snap.ogg', vol = 85, vary = TRUE, frequency = 32000, falloff_distance = 2)
 		new /obj/effect/decal/cleanable/plastic/inflatables(get_turf(src))
 		qdel(src)
+		air_update_turf(TRUE, TRUE)
 		return
-	playsound(loc, 'sound/effects/smoke.ogg', 60, TRUE)
+
+	var/deflate_time = by_user ? FAST_DEFLATE_TIME : SLOW_DEFLATE_TIME
 	var/matrix/matrix = new
-	matrix.Scale(0.6)
-	animate(src, SLOW_DEFLATE_TIME, transform = matrix)
-	addtimer(CALLBACK(src, .proc/post_deflate), SLOW_DEFLATE_TIME)
+	matrix.Scale(0.5, 0.3)
+
+	deflating = TRUE
+	playsound(loc, 'sound/effects/smoke.ogg', vol=70, vary=TRUE)
+	animate(src, deflate_time, transform = matrix)
+	set_density(FALSE)
+	air_update_turf(TRUE, TRUE)
+	addtimer(CALLBACK(src, .proc/post_deflate), deflate_time)
 
 /obj/structure/inflatable/proc/post_deflate()
+	if(QDELETED(src))
+		return
 	var/obj/item/inflatable/inflatable_item = new deployer_item(src.loc)
 	transfer_fingerprints_to(inflatable_item)
 	qdel(src)
 
-// Custom broken plastic decal
-/obj/effect/decal/cleanable/plastic/inflatables
-	name = "rubber shreds"
-	color = "#e9d285"
-
+#undef FAST_DEFLATE_TIME
 #undef SLOW_DEFLATE_TIME
+#undef PRE_INFLATE_DELAY
