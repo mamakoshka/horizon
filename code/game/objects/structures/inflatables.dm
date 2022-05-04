@@ -64,7 +64,7 @@
 /obj/item/inflatable/proc/pre_inflate(mob/user)
 	if(!deploy_structure)
 		return
-	if(locate(/obj/structure/inflatable) in user.loc)
+	if(locate(/obj/structure/inflatable) in get_turf(user))
 		to_chat(user, SPAN_WARNING("There is already an inflatable here!"))
 		return
 
@@ -72,7 +72,7 @@
 	return TRUE
 
 /obj/item/inflatable/proc/inflate(mob/user, is_suiciding = FALSE)
-	var/location = src.loc
+	var/location = get_turf(src)
 
 	if(user.get_held_index_of_item(src))
 		location = user.loc
